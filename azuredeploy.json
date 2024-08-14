@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "TableName": {
-            "defaultValue": "aux_test_table_CL",
+            "defaultValue": "aux_table_CL",
             "type": "string",
             "metadata": {
                 "description": "Name of your custom table. Must end with _CL."
@@ -16,7 +16,7 @@
             }
         },
         "OS":{
-            "Type":"string",
+            "type":"string",
             "allowedValues":[
                 "Windows",
                 "Linux"
@@ -27,7 +27,7 @@
             }
         },
         "FilePatterns":{
-            "Type":"string",
+            "type":"string",
             "defaultValue":"/var/log/*.log",
             "metadata":{
               "description": "Path on the local disk for the log file to collect. May include wildcards.Enter multiple file patterns separated by commas (AMA version 1.26 or higher required for multiple file patterns on Linux)."
