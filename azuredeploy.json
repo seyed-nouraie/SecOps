@@ -35,7 +35,7 @@
         },
         "FilePatterns":{
             "type":"string",
-            "defaultValue":"/var/log/*.log",
+            "defaultValue":"/var/tmp/*.log",
             "metadata":{
               "description": "Path on the local disk for the log file to collect. May include wildcards. Enter multiple file patterns separated by commas (AMA version 1.26 or higher required for multiple file patterns on Linux)."
             }
