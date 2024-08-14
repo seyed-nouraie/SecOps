@@ -1,7 +1,7 @@
 # Sentinel-Auxiliary-Logs-Tools
 Everything you need to get started with Auxiliary logs in Sentinel
 
-This template deploys almost everything you need to get started with Auxiliary logs in Sentinel using the AMA.
+This template deploys almost everything you need to get started with Auxiliary logs in Sentinel using the AMA.  
 First, deploy the template.  
 Then associate the DCR with a log collector.  
 Now, as soon as you drop a log file that matches the pattern you specified, it lands in your new Aux table.  
