@@ -11,8 +11,15 @@
         },
         "WorkspaceResourceId": {
             "type": "string",
+            "defaultValue":"/subscriptions/{SubscriptionId}/resourcegroups/{ResourceGroupName}/providers/microsoft.operationalinsights/workspaces/{WorkspaceName}",
             "metadata": {
                 "description": "The workspace id of your Sentinel workspace."
+            }
+        },
+        "WorkspaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of your Sentinel workspace."
             }
         },
         "OS":{
@@ -30,18 +37,19 @@
             "type":"string",
             "defaultValue":"/var/log/*.log",
             "metadata":{
-              "description": "Path on the local disk for the log file to collect. May include wildcards.Enter multiple file patterns separated by commas (AMA version 1.26 or higher required for multiple file patterns on Linux)."
+              "description": "Path on the local disk for the log file to collect. May include wildcards. Enter multiple file patterns separated by commas (AMA version 1.26 or higher required for multiple file patterns on Linux)."
             }
         }
     },
     "variables": {
-      "tableOutputStream": "[concat('Custom-',parameters('TableName'))]"
+      "tableOutputStream": "[concat('Custom-',parameters('TableName'))]", 
+      "tableResourceName":"[format('{0}/{1}', parameters('WorkspaceName'), parameters('TableName'))]"
     },
     "resources": [
         {
             "type": "Microsoft.OperationalInsights/workspaces/tables",
             "apiVersion": "2023-01-01-preview",
-            "name": "[concat(parameters('WorkspaceResourceId'), parameters('TableName'))]",
+            "name": "[variables('tableResourceName')]",
             "properties": {
                 "plan": "Auxiliary",
                 "schema": {
@@ -55,17 +63,17 @@
                             "type": "string"
                         }
                     ],
-                    "description": "string",
-                    "displayName": "string",
-                    "name": "string"
+                    "displayName": "[parameters('TableName')]",
+                    "name": "[parameters('TableName')]"
                 },
-                "totalRetentionInDays": "int"
+                "totalRetentionInDays": 365
             }
         },
         {
             "type": "Microsoft.Insights/dataCollectionEndpoints",
             "apiVersion": "2022-06-01",
-            "name": "Aux_DCE",
+            "name": "Aux-DCE",
+            "dependsOn":["[parameters('TableName')]"],
             "location": "[resourceGroup().location]",
             "kind": "[parameters('OS')]",
             "properties": {
@@ -74,12 +82,14 @@
         },
         {
             "type": "Microsoft.Insights/dataCollectionRules",
-            "name": "AUX DCR",
-            "location": "[[resourceGroup().location]",
+            "name": "Aux-DCR",
+            "location": "[resourceGroup().location]",
             "apiVersion": "2022-06-01",
+            "dependsOn":["Aux-DCE"],
             "properties": {
+                "dataCollectionEndpointId":"[format('{0}/{1}/{2}/{3}/{4}','/subscriptions', subscription().subscriptionId, 'resourceGroups', resourceGroup().name, 'providers/Microsoft.Insights/dataCollectionEndpoints/Aux-DCE')]",
                 "streamDeclarations": {
-                    "Custom-Text-stream": {
+                    "[format('{0}-{1}','Custom-Text',parameters('TableName'))]": {
                         "columns": [
                             {
                                 "name": "TimeGenerated",
@@ -96,13 +106,13 @@
                     "logFiles": [
                         {
                             "streams": [
-                                "Custom-Text-stream"
+                                "[format('{0}-{1}','Custom-Text',parameters('TableName'))]"
                             ],
                             "filePatterns": [
                                 "[parameters('FilePatterns')]"
                             ],
                             "format": "text",
-                            "name": "Custom-Text-dataSource",
+                            "name": "[format('{0}-{1}','Custom-Text',parameters('TableName'))]",
                             "settings": {
                                 "text":{
                                     "recordStartTimestampFormat": "ISO 8601"
@@ -115,19 +125,18 @@
                     "logAnalytics": [
                         {
                             "workspaceResourceId": "[parameters('WorkspaceResourceId')]",
-                            "name": "workspace"
+                            "name": "sentinel"
                         }
                     ]
                 },
                 "dataFlows": [
                     {
                         "streams": [
-                            "Custom-Text-dataSource"
+                            "[format('{0}-{1}','Custom-Text',parameters('TableName'))]"
                         ],
                         "destinations": [
-                            "workspace"
+                            "sentinel"
                         ],
-                        "transformKql": "source",
                         "outputStream": "[variables('tableOutputStream')]"
                     }
                 ]
