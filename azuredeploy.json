@@ -1,0 +1,137 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "TableName": {
+            "defaultValue": "aux_test_table_CL",
+            "type": "string",
+            "metadata": {
+                "description": "Name of your custom table. Must end with _CL."
+            }
+        },
+        "WorkspaceResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "The workspace id of your Sentinel workspace."
+            }
+        },
+        "OS":{
+            "Type":"string",
+            "allowedValues":[
+                "Windows",
+                "Linux"
+            ],
+            "defaultValue":"Linux",
+            "metadata": {
+                "description":"OS that log collector is installed on."
+            }
+        },
+        "FilePatterns":{
+            "Type":"string",
+            "defaultValue":"/var/log/*.log",
+            "metadata":{
+              "description": "Path on the local disk for the log file to collect. May include wildcards.Enter multiple file patterns separated by commas (AMA version 1.26 or higher required for multiple file patterns on Linux)."
+            }
+        }
+    },
+    "variables": {
+      "tableOutputStream": "[concat('Custom-',parameters('TableName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.OperationalInsights/workspaces/tables",
+            "apiVersion": "2023-01-01-preview",
+            "name": "[concat(parameters('WorkspaceResourceId'), parameters('TableName'))]",
+            "properties": {
+                "plan": "Auxiliary",
+                "schema": {
+                    "columns": [
+                        {
+                            "name": "TimeGenerated",
+                            "type": "datetime"
+                        },
+                        {
+                            "name": "RawData",
+                            "type": "string"
+                        }
+                    ],
+                    "description": "string",
+                    "displayName": "string",
+                    "name": "string"
+                },
+                "totalRetentionInDays": "int"
+            }
+        },
+        {
+            "type": "Microsoft.Insights/dataCollectionEndpoints",
+            "apiVersion": "2022-06-01",
+            "name": "Aux_DCE",
+            "location": "[resourceGroup().location]",
+            "kind": "[parameters('OS')]",
+            "properties": {
+                "description": "DCE used for aux log collection"
+            }
+        },
+        {
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "name": "AUX DCR",
+            "location": "[[resourceGroup().location]",
+            "apiVersion": "2022-06-01",
+            "properties": {
+                "streamDeclarations": {
+                    "Custom-Text-stream": {
+                        "columns": [
+                            {
+                                "name": "TimeGenerated",
+                                "type": "datetime"
+                            },
+                            {
+                                "name": "RawData",
+                                "type": "string"
+                            }
+                        ]
+                    }
+                },
+                "dataSources": {
+                    "logFiles": [
+                        {
+                            "streams": [
+                                "Custom-Text-stream"
+                            ],
+                            "filePatterns": [
+                                "[parameters('FilePatterns')]"
+                            ],
+                            "format": "text",
+                            "name": "Custom-Text-dataSource",
+                            "settings": {
+                                "text":{
+                                    "recordStartTimestampFormat": "ISO 8601"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "workspaceResourceId": "[parameters('WorkspaceResourceId')]",
+                            "name": "workspace"
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "Custom-Text-dataSource"
+                        ],
+                        "destinations": [
+                            "workspace"
+                        ],
+                        "transformKql": "source",
+                        "outputStream": "[variables('tableOutputStream')]"
+                    }
+                ]
+            }
+        }
+    ]
+}
