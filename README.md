@@ -1,5 +1,7 @@
 # Tools Glossary
-## Sentinel Auxiliary Logs Deployment
+
+## Sentinel
+## Auxiliary Logs
 Everything you need to get started with Auxiliary logs in Sentinel
 
 [Solution Page](https://github.com/seyed-nouraie/Sentinel-Auxiliary-Logs-Tools/tree/main/Sentinel/Auxiliary)
