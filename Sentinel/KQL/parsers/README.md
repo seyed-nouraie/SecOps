@@ -6,16 +6,20 @@
 # Code
 JSON:
 ```kql
-Coming soon
+Coming soon  
+```
 
 CEF:
 ```kql
-Coming soon
+Coming soon  
+```
 
 BSD Syslog:
 ```kql
-Coming soon
+Coming soon  
+```
 
 Syslog RFC 5424:
 ```kql
-Coming soon
+Coming soon  
+```
