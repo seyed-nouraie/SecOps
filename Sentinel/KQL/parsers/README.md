@@ -1,4 +1,4 @@
-## Want an in depth breakdown of these log formats and the KQL? [Check out this free article I wrote.](#code)
+## Want an in depth breakdown of these log formats and the KQL? [Check out this free article](#code)
 
 
 
