@@ -3,7 +3,7 @@
 
 
 
-# Firewall Message in 4 Log Formats and Parsing KQL
+# 1 Firewall Message in 4 Log Formats and Parsing KQL
 ## JSON:
 ```json
 {
