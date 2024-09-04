@@ -1,3 +1,4 @@
+## Want a full breakdown of these rules? Check out my free article here: https://modernsecops.com/p/microsoft-sentinel-summary-kql-deep-dive?utm_source=github&utm_medium=organic&utm_campaign=summary_kql
 ## Network IOCs  
 ```kql
 let DestinationSummary = _ASim_NetworkSession()
